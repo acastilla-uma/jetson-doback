@@ -59,3 +59,4 @@ add_executable(detect_lidar
 target_link_libraries(detect_lidar
     pthread
 )
+)
