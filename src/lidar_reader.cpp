@@ -6,7 +6,7 @@
 LidarReader::LidarReader(std::string ip, int port)
     : lidar_ip_(ip), lidar_port_(port), latest_timestamp_(0),
       is_running_(false), has_new_data_(false) {
-    latest_cloud_ = std::make_shared<PointCloud>();
+        latest_cloud_ = PointCloud::Ptr(new PointCloud());
 }
 
 LidarReader::~LidarReader() {
@@ -62,7 +62,7 @@ void LidarReader::readThread() {
     while (is_running_) {
         try {
             // Crear una nueva nube de puntos
-            auto cloud = std::make_shared<PointCloud>();
+            PointCloud::Ptr cloud(new PointCloud());
             
             // Aquí iría el código para leer del Lidar
             // Ejemplo de lectura (debe adaptarse según la SDK)
