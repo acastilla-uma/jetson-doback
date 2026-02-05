@@ -3,7 +3,11 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/io/velodyne_driver.h>
+#if defined(__has_include)
+#  if __has_include(<pcl/io/velodyne_driver.h>)
+#    include <pcl/io/velodyne_driver.h>
+#  endif
+#endif
 #include <string>
 #include <mutex>
 #include <thread>
