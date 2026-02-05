@@ -50,13 +50,7 @@ if(JETSON_BUILD)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
 endif()
 
-# Crear ejecutable para detectar Lidar
-add_executable(detect_lidar
-    src/detect_lidar.cpp
-)
-
-# El detect_lidar solo necesita librerías estándar de red
-target_link_libraries(detect_lidar
-    pthread
-)
+# NOTA: detect_lidar ahora es un script Python (detect_lidar.py)
+# Es más simple y no requiere compilación C++
+# Ver: python3 detect_lidar.py --help
 )
