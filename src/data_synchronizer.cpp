@@ -4,20 +4,33 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#if defined(__has_include)
-#  if __has_include(<filesystem>)
-#    include <filesystem>
-    namespace fs = std::filesystem;
-#  elif __has_include(<experimental/filesystem>)
-#    include <experimental/filesystem>
-    namespace fs = std::experimental::filesystem;
-#  else
-#    error "<filesystem> and <experimental/filesystem> are not available"
-#  endif
-#else
-#  include <experimental/filesystem>
-    namespace fs = std::experimental::filesystem;
-#endif
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <cstring>
+
+// Portable mkdir -p implementation
+static bool mkdir_p(const std::string &path, mode_t mode = 0755) {
+    if (path.empty()) return false;
+
+    std::string p = path;
+    // Remove trailing '/'
+    while (!p.empty() && (p.back() == '/' || p.back() == '\\')) p.pop_back();
+
+    for (size_t pos = 1; pos <= p.size(); ++pos) {
+        if (pos == p.size() || p[pos] == '/' || p[pos] == '\\') {
+            std::string sub = p.substr(0, pos);
+            if (sub.empty()) continue;
+            if (mkdir(sub.c_str(), mode) != 0) {
+                if (errno == EEXIST) continue;
+                if (errno == ENOENT) continue; // parent doesn't exist yet; will create in later iterations
+                // other errors
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 DataSynchronizer::DataSynchronizer(const std::string& output_dir, int64_t time_tolerance_ms)
     : output_dir_(output_dir), time_tolerance_(time_tolerance_ms),
@@ -173,9 +186,15 @@ void DataSynchronizer::createOutputDirectories() {
         depth_dir_ = output_dir_ + "/depth";
         metadata_file_ = output_dir_ + "/metadata.csv";
         
-        fs::create_directories(pointcloud_dir_);
-        fs::create_directories(rgb_dir_);
-        fs::create_directories(depth_dir_);
+        if (!mkdir_p(pointcloud_dir_)) {
+            std::cerr << "Error al crear directorio: " << pointcloud_dir_ << " (" << std::strerror(errno) << ")" << std::endl;
+        }
+        if (!mkdir_p(rgb_dir_)) {
+            std::cerr << "Error al crear directorio: " << rgb_dir_ << " (" << std::strerror(errno) << ")" << std::endl;
+        }
+        if (!mkdir_p(depth_dir_)) {
+            std::cerr << "Error al crear directorio: " << depth_dir_ << " (" << std::strerror(errno) << ")" << std::endl;
+        }
         
         // Crear archivo de metadatos con encabezados
         std::ofstream meta_file(metadata_file_);
