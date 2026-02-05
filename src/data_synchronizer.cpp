@@ -7,16 +7,16 @@
 #if defined(__has_include)
 #  if __has_include(<filesystem>)
 #    include <filesystem>
-#    namespace fs = std::filesystem;
+    namespace fs = std::filesystem;
 #  elif __has_include(<experimental/filesystem>)
 #    include <experimental/filesystem>
-#    namespace fs = std::experimental::filesystem;
+    namespace fs = std::experimental::filesystem;
 #  else
 #    error "<filesystem> and <experimental/filesystem> are not available"
 #  endif
 #else
 #  include <experimental/filesystem>
-#  namespace fs = std::experimental::filesystem;
+    namespace fs = std::experimental::filesystem;
 #endif
 
 DataSynchronizer::DataSynchronizer(const std::string& output_dir, int64_t time_tolerance_ms)
