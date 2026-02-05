@@ -38,6 +38,13 @@ target_link_libraries(lidar_camera_fusion
     pthread
 )
 
+# Enlace condicional para <filesystem> en compiladores más viejos (libstdc++fs)
+find_library(STDCXX_FS NAMES stdc++fs)
+if(STDCXX_FS)
+    message(STATUS "Linking with ${STDCXX_FS} to support std::filesystem/experimental::filesystem")
+    target_link_libraries(lidar_camera_fusion PRIVATE ${STDCXX_FS})
+endif()
+
 # Opción para compilación optimizada en Jetson
 if(JETSON_BUILD)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
